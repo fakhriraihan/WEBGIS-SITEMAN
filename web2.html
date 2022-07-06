@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="author" content="Fakhri Raihan">
+    <meta name="description" content="leaflet basic">
+    <link rel="icon" href="http://luk.staff.ugm.ac.id/logo/UGM/Resmi/Warna.gif" type="image/x-icon">
+
+    <!-- Judul pada tab browser -->
+    <title>SITEMAN</title>
+
+    <!-- Leaflet CSS Library -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css">
+
+    <!-- Tab browser icon -->
+    <link rel="icon" type="image/x-icon" href="http://luk.staff.ugm.ac.id/logo/UGM/Resmi/Warna.gif">
+
+    <!--Geolocation CSS Library for plugin-->
+    <link rel="stylesheet" href="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/L.Control.Locate.css">
+
+    <!--Font Awesome CSS Library-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css">
+
+    <!--Search CSS Library-->
+    <link rel="stylesheet" href="assets/plugins/leaflet-search/src/leaflet-search.css">
+
+    <!--Leaflet Mouse Position CSS Library-->
+    <link rel="stylesheet" href="assets/plugins/Leaflet-mouseposition/src/L.Control.MousePosition.css">
+
+    <!--Leaflet Measure CSS Library-->
+    <link rel="stylesheet" href="assets/plugins/leaflet-measure/leaflet-measure.css">
+
+    <!--Leaflet EasyPrint CSS Library-->
+    <link rel="stylesheet" href="assets/plugins/leaflet-easyPrint/easyPrint.css">
+
+    <style>
+        /* Background pada Judul */
+        *.info {
+            padding: 6px 8px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            background: rgb(28, 27, 27);
+            background: rgba(25, 24, 24, 0.8);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+            text-align: center;
+        }
+        .info h2 {
+            margin: 7px 5px 5px;
+            color: rgb(255, 255, 255);
+        }
+        .info h4 {
+            color: rgb(255, 255, 255);
+        }
+
+        /*Tampilan peta fullscreen*/
+        html, body, #map {
+            height: 100%;
+            width: 100%;
+            margin: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <!--Leaflet Javascript Library-->
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
+
+    <!--untuk menampilkan file dalam format geojson-->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+    <!--Geolocation Javascript Library-->
+    <script src="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-locatecontrol/v0.43.0/L.Control.Locate.min.js"></script>
+
+    <!--Search JS Library-->
+    <script src="assets/plugins/leaflet-search/src/leaflet-search.js"></script>
+
+    <!--Leaflet Mouse Position JS Library-->
+    <script src="assets/plugins/Leaflet-mouseposition/src/L.Control.MousePosition.js"></script>
+
+    <!--Leaflet Measure JS Library-->
+    <script src="assets/plugins/leaflet-measure/leaflet-measure.js"></script>
+
+    <!--Leaflet EasyPrint JS Library-->
+    <script src="assets/plugins/leaflet-easyPrint/leaflet.easyPrint.js"></script>
+
+    <div id="map"></div>
+</body>
+
+<script>
+    /* Initial Map */
+    var map = L.map('map').setView([-7.699566915423707, 110.40324507859499],11); //lat, long, zoom
+
+    /* Tile Basemap */ //(note: pilihan basemap diakses pada https://leaflet-extras.github.io/leaflet-providers/preview/)
+    var basemap1 = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | <a href="SITEMAN" target="_blank">SITEMAN</a>' //menambahkan nama//
+    });
+
+    var basemap2 = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)' 
+    });
+    
+    var basemap3 = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.{ext}', {
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    });
+
+    var basemap4 = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptile s.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+    });
+
+    basemap4.addTo(map);
+
+    /* Judul dan Subjudul */
+    var info = new L.Control();
+
+    info.onAdd = function (map) {
+        this._div = L.DomUtil.create('div', 'info');
+        this.update();
+        return this._div;
+    };
+
+    info.update = function () {
+        this._div.innerHTML = '<h2>WEBGIS | SITEMAN </h2> <h4>Sistem Informasi Fasilitas Kesehatan Kabupaten Sleman</h4>'
+    };
+
+    info.addTo(map);
+
+    /* Image Legend */
+    L.Control.Legend = L.Control.extend({
+        onAdd: function(map) {
+            var img = L.DomUtil.create('img');
+            img.src = 'Database/Nonspatial/Foto/legenda.jpg';
+            img.style.width = '250px';
+            return img;
+        }
+    });
+    
+    L.control.Legend = function(opts) {
+        return new L.Control.Legend(opts);
+    }
+
+    L.control.Legend({ position: 'bottomleft' }).addTo(map); 
+
+    /* Image Watermark */
+    L.Control.Watermark = L.Control.extend({
+        onAdd: function(map) {
+            var img = L.DomUtil.create('img');
+            img.src = 'Database/Nonspatial/Icon/logo.png';
+            img.style.width = '100px';
+            return img;
+        }
+    });
+
+    L.control.watermark = function(opts) {
+        return new L.Control.Watermark(opts);
+    }
+    
+    L.control.watermark({ position: 'bottomleft' }).addTo(map);
+
+
+    /* Layer Marker */
+    /* Memanggil File GeoJSON Point 01*/
+    var wfsgeoserver1 = L.geoJson(null, {
+        pointToLayer: function (feature, latlng) {
+            if (feature.properties.kategori === "Puskesmas Pembantu") {
+                return L.marker(latlng, {
+                icon: L.icon({
+                    iconUrl: "Database/Nonspatial/Icon/Puskesmas Pembantu.png", //URL icon marker
+                    iconSize: [24, 24], //ukuran icon marker
+                    iconAnchor: [16, 24], //icon marker offset
+                    popupAnchor: [0, -32], //popup offset
+                    tooltipAnchor: [16, -20] //tooltip offset
+                })
+            });
+            }
+            else if (feature.properties.kategori === "Puskesmas") {
+                return L.marker(latlng, {
+                icon: L.icon({
+                    iconUrl: "Database/Nonspatial/Icon/Puskesmas.png", //URL icon marker
+                    iconSize: [24, 24], //ukuran icon marker
+                    iconAnchor: [16, 24], //icon marker offset
+                    popupAnchor: [0, -32], //popup offset
+                    tooltipAnchor: [16, -20] //tooltip offset
+                })
+            });
+            }
+            else if (feature.properties.kategori === "Rumah Sakit") {
+                return L.marker(latlng, {
+                icon: L.icon({
+                    iconUrl: "Database/Nonspatial/Icon/RS.png", //URL icon marker
+                    iconSize: [24, 24], //ukuran icon marker
+                    iconAnchor: [16, 24], //icon marker offset
+                    popupAnchor: [0, -32], //popup offset
+                    tooltipAnchor: [16, -20] //tooltip offset
+                })
+            });
+            }
+        },
+        onEachFeature: function(feature, layer) {
+            /* Variabel content untuk memanggil atribut dari data file geojson */
+            var content = "Nama : " + feature.properties.nama + "<br>" +
+            "Kategori : " + feature.properties.kategori + "<br>" +
+            "Alamat : " + feature.properties.desa + "," + feature.properties.kecamatan + "<br>" +
+            "<img src='Database/Nonspatial/Foto/" + feature.properties.foto + "' width='150'>";
+
+            layer.on({
+                click: function (e) { //Fungsi ketika icon simbol di-klik
+                    wfsgeoserver1.bindPopup(content);
+                },
+
+                mouseover: function(e) { 
+                    wfsgeoserver1.bindTooltip(feature.properties.nama, {sticky: true});
+                },
+
+                mouseout: function(e) {
+                    wfsgeoserver1.closePopup();
+                }
+            });
+        }
+    });
+
+    $.getJSON("data/wfsgeoserver1.php", function (data) {
+        wfsgeoserver1.addData(data);
+        map.addLayer(wfsgeoserver1);
+        // map.fitBounds(wfsgeoserver1.getBounds());
+    });
+
+    /* GeoJSON Polyline Style 01 – Data Nominal*/
+    //pembuatan pane dan z.index digunakan untuk menyusun ordering layer agar tidak saling menutupi
+    $.getJSON("data/Jalan_Sleman.geojson", function (data) {
+        Jalan_Sleman.addData(data);
+        map.addLayer(Jalan_Sleman);
+        map.fitBounds(Jalan_Sleman.getBounds());
+    });
+    map.createPane("pane_Jalan_Sleman");
+    map.getPane("pane_Jalan_Sleman").style.zIndex = 405;
+
+    var Jalan_Sleman = L.geoJson(null, {
+        style: function (feature) {
+            if (feature.properties.FUNGSI === "Jalan Arteri" ) {
+                return {
+                    color: "#9d2224", //Warna garis
+                    dashArray: '',
+                    weight: 4, //Tebal garis
+                    opacity: 1, //Transparansi garis
+                }
+            }
+            else if (feature.properties.FUNGSI === "Jalan Kolektor" ) {
+                return {
+                    color: "#9d2224", //Warna garis
+                    dashArray: '',
+                    weight: 2.5, //Tebal garis
+                    opacity: 1, //Transparansi garis
+                }
+            }
+            else if (feature.properties.FUNGSI === "Jalan Lokal" ) {
+                return {
+                    color: "#9d2224", //Warna garis
+                    dashArray: '',
+                    weight: 1, //Tebal garis
+                    opacity: 1, //Transparansi garis
+                }
+            }
+            else if (feature.properties.FUNGSI === "Rel Kereta" ) {
+                return {
+                    color: "#000000", //Warna garis
+                    dashArray: '5',
+                    weight: 2, //Tebal garis
+                    opacity: 1, //Transparansi garis
+                }
+            }
+        },
+        onEachFeature: function (feature, layer) {
+            var content = "Jenis: " + feature.properties.FUNGSI + "<br>" +
+            "Nama: " + feature.properties.NAMA + "<br>" +
+            "Kewenangan: " + feature.properties.KEWENANGAN;
+
+            var contentTable = "<table>" +
+                "<tr><th>Jenis</th><td>" + feature.properties.FUNGSI + "</td></tr>" +
+                "<tr><th>Nama</th><td>" + feature.properties.NAMA + "</td></tr>" +
+                "<tr><th>Kewenangan</th><td>" + feature.properties.KEWENANGAN + "</td></tr>" +
+                "</table>";
+
+                layer.on({
+                    click: function (e) { //Fungsi ketika obyek diklik
+                        Jalan_Sleman.bindPopup(
+                            'Jenis: ' + feature.properties.FUNGSI + '<br>' +
+                            'Nama: ' + feature.properties.NAMA + '<br>' +
+                            'Kewenangan: ' + feature.properties.KEWENANGAN
+                            );
+                        },
+                        mouseover: function (e) { //Fungsi mouse berada di atas obyek untuk highlight
+                            var layer = e.target; //variabel layer
+                            layer.setStyle({ //Highlight style
+                                weight: 2,  //Tebal garis
+                                color: "#00FFFF", //Warna garis
+                                  opacity: 1, //Transparansi garis
+                            });
+                          Jalan_Sleman.bindTooltip("Jalan " + feature.properties.NAMA, {sticky: true});
+                        },
+                        mouseout: function (e) { //Fungsi mouse keluar dari obyek
+                            Jalan_Sleman.resetStyle(e.target); //Mengembalikan style garis ke style awal
+                            map.closePopup(); //Menutup popup
+                        }
+                    });
+                },
+                // pane: "pane_Jalan_Sleman"
+            });
+    
+    /* memanggil data file geojson polygon 01 – Data Interval/Rasio */
+    $.getJSON("data/BatasAdmin_Sleman.geojson", function (data) {
+        BatasAdmin_Sleman.addData(data);
+        map.addLayer(BatasAdmin_Sleman);
+        map.fitBounds(BatasAdmin_Sleman.getBounds());
+    });
+
+    /* GeoJSON Polygon Style 01*/
+    var BatasAdmin_Sleman = L.geoJson(null, {
+        style: function (feature) {
+            return {
+                opacity: 1,
+                color: 'black',
+                weight: 1,
+                dashArray: '3',
+                fillOpacity: 0.7, 
+                fillColor: '#c87fe3'
+            }
+        },
+        
+        onEachFeature: function (feature, layer) {
+            var content = "Desa: " + feature.properties.Desa + "<br>" +
+                "Kecamatan: " + feature.properties.Kecamatan + "<br>" +
+                "Kabupaten: " + feature.properties.Kabupaten;
+
+            var contentTable = "<table>" +
+                "<tr><th>Desa</th><td>" + feature.properties.Desa + "</td></tr>" +
+                "<tr><th>Kecamatan</th><td>" + feature.properties.Kecamatan + "</td></tr>" +
+                "<tr><th>Kabupaten</th><td>" + feature.properties.Kabupaten + "</td></tr>" +
+                "</table>";
+
+            layer.on({
+                click: function (e) { //Fungsi ketika obyek diklik
+                    BatasAdmin_Sleman.bindPopup(content);
+                },
+                mouseover: function (e) { //Fungsi mouse berada di atas obyek untuk highlight
+                    var layer = e.target; //variabel layer
+                    layer.setStyle({ //Highlight style
+                        color: "grey", //Warna garis tepi polygon
+                        weight: 0.2, //Tebal garis tepi polygon
+                        opacity: 1, //Transparansi garis tepi polygon
+                        fillColor: "cyan", //Warna tengah polygon
+                        fillOpacity: 0.7 //Transparansi polygon
+                    });
+                    BatasAdmin_Sleman.bindTooltip("Desa " + feature.properties.Desa, {sticky: true});
+                },
+                mouseout: function (e) { //Fungsi mouse keluar dari obyek
+                    BatasAdmin_Sleman.resetStyle(e.target); //Mengembalikan style garis ke style awal
+                    map.closePopup(); //Menutup popup
+                }
+            });
+        }
+    });
+ 
+    /* Control Layer */
+    var baseMaps = {
+        "OpenStreetMap": basemap1,
+        "OpenTopoMap": basemap2,
+        "Stamen Watercolor": basemap3,
+        "Stadia Dark Mode": basemap4
+    };
+
+    var overlayMaps = {
+        "Fasilitas Kesehatan": wfsgeoserver1,
+        "Jaringan Jalan": Jalan_Sleman,
+        "Batas Administrasi": BatasAdmin_Sleman
+    };
+
+    L.control.layers(baseMaps, overlayMaps, {collapsed: false}).addTo(map);
+
+    /* Scale Bar */
+    L.control.scale({
+    maxWidth: 150,position:'bottomright'
+    }).addTo(map);
+
+    /*Plugin Search */
+    var searchControl = new L.Control.Search({
+        position: "topleft",
+        layer: BatasAdmin_Sleman,          //Nama variabel layer
+        propertyName: 'Desa',    //Field untuk pencarian
+        marker: false,
+        moveToLocation: function(latlng, title, map) {
+            var zoom = map.getBoundsZoom(latlng.layer.getBounds());
+            map.setView(latlng, zoom);
+        }
+    });
+    searchControl.on('search:locationfound', function(e) {
+        e.layer.setStyle({
+            fillColor: '#ffff00', 
+            color: '#0000ff'
+        });
+    }).on('search:collapse', function(e) {
+        BatasAdmin_Sleman.eachLayer(function(layer) {
+            BatasAdmin_Sleman.resetStyle(layer);
+        });
+    });
+    map.addControl(searchControl);
+
+    /*Plugin Geolocation*/
+    var locateControl = L.control.locate({
+        position: "topleft",
+        drawCircle: true,
+        follow: true,
+        setView: true,
+        keepCurrentZoomLevel: false,
+        markerStyle: {
+            weight: 1,
+            opacity: 0.8,
+            fillOpacity: 0.8,
+        },
+        circleStyle:{
+            weight: 1,
+            clickable: false,
+        },
+        icon: "fas fa-crosshairs",
+        metric: true,
+        strings: {
+            title: "Click for Your Location",
+            popup: "You're here. Accuracy {distance} {unit}",
+            outsideMapBoundsMsg: "Not available"
+        },
+        locateOptions: {
+            maxZoom: 16,
+            watch: true,
+            enableHighAccuracy: true,
+            maximumAge: 10000,
+            timeout: 10000
+        },
+    }).addTo(map);
+
+    /*Plugin Mouse Position Coordinate */
+    L.control.mousePosition({position:'bottomright',
+    separator: ',',
+    prefix: 'Koordinat : '
+    }).addTo(map);
+
+    /*Plugin Measurement Tool*/
+    var measureControl = new L.Control.Measure({
+        position: 'topright',
+        primaryLengthUnit:'meters',
+        secondaryLengthUnit: 'kilometers',
+        primaryAreaUnit: 'hectares',
+        secondaryAreaUnit: 'sqmeters',
+        activeColor: '#FF0000',
+        completedColor: '#00FF00'
+    });
+    measureControl.addTo(map);
+    
+    /*Plugin EasyPrint */
+    L.easyPrint({
+        title: 'Print',
+    }).addTo(map); 
+
+    </script>
+</html>
